@@ -34,3 +34,6 @@ The implemention is very simple, and notice that I just test it in OTP_R15B, in 
 make a test.
 
 呵呵，公司局域网里面空闲的机子还是很多的，欢迎提bug。
+
+Email:      shoumuyushan@gmail.com
+Tecent QQ:    812445367
