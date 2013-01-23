@@ -1,7 +1,7 @@
 smake
 =====
 
-smart make tool for erlang
+smart distributed make tool for erlang 
 
 
 test example:
