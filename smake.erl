@@ -29,7 +29,13 @@ all(Options) when is_list(Options) ->
 	Worker = erlang:system_info(schedulers),
 	all(Worker, Options).
 	
+nowsec() ->
+	{M, S, _} = erlang:now(),
+	M * 1000000 + S.
+	
 all(Worker, Options) when is_integer(Worker) ->
+	%% 记录开始编译时间
+	put(start_sec, nowsec()),
 	%% 加入分布式编译集群
 	case option(compile_server, Options) of
 		false ->
@@ -205,6 +211,9 @@ process([{L, Opts}|Rest], Worker, NoExec, Load) ->
             process(Rest, Worker, NoExec, Load)
     end;
 process([], _Worker, _NoExec, _Load) ->
+	EndSec = nowsec(),
+	StartSec = get(start_sec),
+	io:format("Compile Time Consume ~w second",[EndSec-StartSec]),
     up_to_date.
 
 %% 将文件从大到小排列
@@ -224,7 +233,11 @@ do_worker(L, Opts, NoExec, Load, Worker) ->
 													ignore;
 												NodeList ->
 													lists:foreach(fun(Node) ->
+																		%% 远程节点核心数-1个工作进程
+																		ValidCpuNum = rpc:call(Node, erlang, system_info, [schedulers]),
+																		lists:foreach(fun(_) ->
 																		  spawn_monitor(fun() ->remote_worker(Node,[], Opts, NoExec, Load, MasterPid) end)
+																		  end, lists:seq(1,ValidCpuNum-1))
 																  end, NodeList)
 											end,
 											master_loop(sort_file(L), length(L))
@@ -378,7 +391,7 @@ recompile(File, false, netload, Opts) ->
 	recompile2(File, Opts).
 
 recompile2(File, [{remote_compile, Node} | Opts]) ->
-    io:format("remote Recompile: ~s\n",[File]),
+    io:format("remote Recompile in ~p: ~s\n",[Node, File]),
 	case catch rpc:call(Node, compile2, file, [File, [report_errors, report_warnings, error_summary |Opts]]) of
 		{'EXIT', _}=Reason  ->
 			io:format("~100000p",[Reason]),

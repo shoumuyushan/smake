@@ -1177,7 +1177,7 @@ abstract_code(#compile{code=Code,options=Opts,ofile=OFile}) ->
 		    %% all valid cases.
 		    Module = list_to_atom(filename:rootname(filename:basename(OFile))),
 		    Mode = proplists:get_value(crypto_mode, Opts, des3_cbc),
-		    case beam_lib:get_crypto_key({debug_info, Mode, Module, OFile}) of
+		    case beam_lib2:get_crypto_key({debug_info, Mode, Module, OFile}) of
 			error ->
 			    {error, [{none,?MODULE,no_crypto_key}]};
 			Key ->

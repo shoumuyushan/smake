@@ -692,7 +692,7 @@ scan_include_lib([{'(',_Llp},{string,_Lf,NewName0},{')',_Lrp},{dot,_Ld}],
 	    case catch find_lib_dir(NewName) of
 		{LibDir, Rest} when is_list(LibDir) ->
 		    LibName = fname_join([LibDir | Rest]),
-		    case open_file(LibName) of
+		    case file:open(LibName, [read]) of
 			{ok,NewF} ->
 			    wait_req_scan(enter_file2(NewF, LibName, From,
                                                       St, Loc));
