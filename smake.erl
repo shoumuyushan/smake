@@ -219,7 +219,7 @@ process([{L, Opts}|Rest], Worker, NoExec, Load) ->
 process([], _Worker, _NoExec, _Load) ->
 	EndSec = nowsec(),
 	StartSec = get(start_sec),
-	io:format("Compile Time Consume ~w second",[EndSec-StartSec]),
+	io:format("Compile Time Consume ~w second\n",[EndSec-StartSec]),
     up_to_date.
 
 %% 将文件从大到小排列
