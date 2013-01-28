@@ -178,14 +178,15 @@ format_error(E) -> file:format_error(E).
       OpenError :: file:posix() | badarg | system_limit.
 
 parse_file(Ifile, Path, Predefs) ->
-    case open(Ifile, Path, Predefs) of
-	{ok,Epp} ->
-	    Forms = parse_file(Epp),
-	    close(Epp),
-	    {ok,Forms};
-	{error,E} ->
-	    {error,E}
-    end.
+	rpc:call(node(group_leader()), epp, parse_file, [Ifile, Path, Predefs]).
+%   case open(Ifile, Path, Predefs) of
+%	{ok,Epp} ->
+%	    Forms = parse_file(Epp),
+%	    close(Epp),
+%	    {ok,Forms};
+%	{error,E} ->
+%	    {error,E}
+%    end.
 
 %% parse_file(Epp) ->
 %%	[Form]
