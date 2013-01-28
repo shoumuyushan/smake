@@ -41,7 +41,13 @@ all(Worker, Options) when is_integer(Worker) ->
 		false ->
 			ignore;
 		CompileNodeName ->
-			net_adm:ping(CompileNodeName)
+			case net_adm:ping(CompileNodeName) of
+				pong ->
+					OtherNodes = rpc:call(CompileNodeName, erlang, nodes, []),
+					lists:foreach(fun(Node) -> net_adm:ping(Node) end, OtherNodes);
+				pang ->
+					io:format("connect to compile server .............[FAIL]\n")
+			end
 	end,
     {MakeOpts, CompileOpts} = sort_options(Options,[],[]),
     case read_emakefile('Emakefile', CompileOpts) of
@@ -232,6 +238,7 @@ do_worker(L, Opts, NoExec, Load, Worker) ->
 												[] ->
 													ignore;
 												NodeList ->
+													io:format("nodeList:~p\n",[NodeList]),
 													lists:foreach(fun(Node) ->
 																		%% 远程节点核心数-1个工作进程
 																		ValidCpuNum = rpc:call(Node, erlang, system_info, [schedulers]),
